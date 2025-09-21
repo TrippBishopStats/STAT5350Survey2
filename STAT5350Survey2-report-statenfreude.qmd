@@ -1,0 +1,123 @@
+---
+title: "Survey 2"
+author: "Statenfreude"
+format: html
+---
+
+```{r intial setup}
+library(tidyverse);
+base_theme <- theme_minimal() +
+  theme(
+    axis.text=element_text(size=12),
+    axis.title=element_text(size=13),
+    plot.title=element_text(size=15),
+    plot.title.position="plot",
+    plot.caption.position="plot"
+  )
+theme_set(base_theme)
+df_proc <- read_rds("df_proc.rds")
+```
+
+
+
+## Question 1
+
+```{r}
+# question one 
+df_proc |>
+  filter(question == 1) |> 
+  group_by(brand) |> 
+  summarise(
+    avg = mean(response, na.rm=TRUE),
+    stderr = sd(response),
+    min = min(response),
+    max = max(response)
+  )
+
+df_proc |>
+  filter(question == 1 & !is.na(response)) |> 
+  ggplot(aes(x=brand, y=response, colour=brand)) +
+  geom_boxplot() +
+  geom_jitter(alpha=0.5, height=0.1, width=0.4) +
+  scale_colour_brewer(palette="Dark2") +
+  labs(
+    y="Response",
+    x="Brand",
+    colour="Brand",
+    title="Comparison of brand rankings",
+    caption="Data points have been jittered both vertically and 
+             horizontally to prevent overplotting."
+  )
+
+```
+
+
+## Question 2
+
+```{r question 2 visualisations}
+# basic heat map disply for question 2
+df_proc |>
+  filter(question == 2) |> 
+  group_by(brand, category) |> 
+  summarise(
+    avg = mean(response),
+    stderr = sd(response),
+    min = min(response),
+    max = max(response)
+  ) |> ggplot(aes(brand, category, fill= avg)) + 
+  geom_tile(colour="white") +
+  scale_fill_viridis_b(direction=-1)
+
+
+df_proc |>
+  filter(question == 2) |> 
+  group_by(brand, category) |> 
+  summarise(
+    avg = mean(response),
+    stderr = sd(response),
+    min = min(response),
+    max = max(response)
+  )
+```
+
+## Question 3
+
+
+```{r question 3 data proc and viz}
+df_proc |>
+  filter(question == 3) |> 
+  group_by(brand) |> 
+  summarise(
+    avg = mean(response),
+    stderr = sd(response),
+    min = min(response),
+    max = max(response)
+  ) 
+  
+  
+df_proc |>
+  filter(question == 3) |>
+  ggplot(aes(x=brand, y=response,colour=brand)) +
+  geom_boxplot() +
+  geom_jitter(alpha=0.4, width=0.4) +
+  scale_colour_brewer(palette="Dark2") +
+  labs(
+    y="Allocation ($)",
+    x="Brand",
+    colour="Brand"
+  )
+
+df_proc |> filter(question == 3) |> ggplot(aes(x=response)) +
+  geom_histogram(colour="white", fill="steelblue") + facet_wrap(~brand) +
+  labs(
+    y="Frequency",
+    x="Brand allocation ($)",
+    title="Comparison of brand monetary allocation distributions"
+  ) +
+  theme(
+    strip.background=element_rect(colour="grey30", fill="grey80"),
+    strip.text=element_text(face="bold")
+  )
+
+```
+
