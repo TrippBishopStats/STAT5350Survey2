@@ -1,7 +1,6 @@
 library(tidyverse); library(janitor)
 df <- read_csv("complete-data.csv") |> janitor::clean_names()
 
-
 # perform transformation and field engineering.
 df_processed <- df |> 
   pivot_longer(cols=c(everything(), -respondent), 
@@ -31,4 +30,5 @@ df_processed <- df |>
     brand = as_factor(brand)
   )
 
+write_rds(df, "wide-data.rds")
 write_rds(df_processed, "df_proc.rds")
