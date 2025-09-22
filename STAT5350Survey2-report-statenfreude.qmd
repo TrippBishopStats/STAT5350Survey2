@@ -36,16 +36,18 @@ quality, and variety.
 ## A priori hypotheses
 The survey questions generated a number of hypotheses. We explored the 3 listed here.
 
-- For question 1, we expected Target and Costco to be rated the highest out of the four options.
-- For question 2, we expected that the mean (combined price, quality, and variety scores) of overall approval of Whole Foods will be higher for individuals who rated Target higher than Costco in question 1.
-- There was an alternate hypothesis that Trader Joe's and Whole Foods might be more popular with students given that students are probably most interested in food options rather than general shopping.
-- Target has been experiencing push back on DEI business decisions and that may affect its ranking.
+1) For question 1, we expected Target and Costco to be rated the highest out of the four options.
+2) There was an alternate hypothesis that Trader Joe's and Whole Foods might be more popular with students given that students are probably most interested in food options rather than general shopping.
+3) Target has been experiencing push back on DEI business decisions and that may affect its ranking.
+4) For question 2, we expected that the mean (combined price, quality, and variety scores) of overall approval of Whole Foods will be higher for individuals who rated Target higher than Costco in question 1.This is based on the impression that ranking Target above Costco implies cost may be less important to ranking, which would diminish one of the most salient cons of Whole Foods (price).
 
 We did not capture demographic data, but nearly all of our sampling was
 conducted in the student union, so most of the survey respondents are very
 likely to be students at the university.
 
 ## Results question 1
+
+### Hypotheses 1-3
 The mean rankings and other descriptive statistics are listed in the table
 below. The highest ranked store was Target, followed by Costco. This
 is counter to the second hypothesis about store rankings but may support the
@@ -91,12 +93,10 @@ df_proc |>
   )
 ```
 
-
-
 ```{r question 1 preference means}
 df_pref_tgt <- df_wide |> filter(target_1 > costco_1)
 
-df_proc |> filter(question==2 & brand=="Whole Foods") |> 
+wf_mean_tgt <- df_proc |> filter(question==2 & brand=="Whole Foods" & !is.na(response)) |> 
   select(respondent, response) |> 
   group_by(respondent) |> 
   summarise(
@@ -105,9 +105,9 @@ df_proc |> filter(question==2 & brand=="Whole Foods") |>
   select(respondent, agg_response) |> 
   summarise(
     wf_pref_avg = mean(agg_response)
-  )
+  ) |> pull() |> round(2)
 
-df_proc |> filter(question==2 & brand=="Whole Foods") |> 
+wf_mean_not_tgt <- df_proc |> filter(question==2 & brand=="Whole Foods" & !is.na(response)) |> 
   select(respondent, response) |> 
   group_by(respondent) |> 
   summarise(
@@ -116,50 +116,47 @@ df_proc |> filter(question==2 & brand=="Whole Foods") |>
   select(respondent, agg_response) |> 
   summarise(
     wf_pref_avg = mean(agg_response)
-  )
-
-wf_Txs <- NULL
-wf_Cxs <- NULL
-if(costco1[i] < target1[i]) {
-	wf_Txs <- c(wf_Txs, wf2[i])
-}
-else{
-	wf_Cxs <- c(wf_Cxs, wf2[i])
-}
-mean(wf_xs)
-
+  ) |> pull() |> round(2)
 ```
 
-
-
+### Hypothesis 4
+For respondents who rank Target above Costco, the aggregate rating score is 
+`r wf_mean_tgt`. The aggregate rating score for respondents who rank Costco
+above Target is `r wf_mean_not_tgt`. This result is counter to what was
+initially hypothesised.
 
 ## Question 2
-
+The second survey question asks respondents to rate each store on 3
+characteristics: price, quality, and variety. Each characteristic is measured on
+a multiple rating scale from 1 (poor) to 5 (excellent). The average
+characteristic score for each store is presented in the heat map below.
 ```{r question 2 visualisations}
-# basic heat map disply for question 2
+#| fig-cap: "Heatmap of store characterics. Darker colours indicate higher rankings."
 df_proc |>
-  filter(question == 2) |> 
+  filter(question == 2 & !is.na(response)) |> 
   group_by(brand, category) |> 
   summarise(
-    avg = mean(response),
-    stderr = sd(response),
-    min = min(response),
-    max = max(response)
+    avg = mean(response) |> round(2),
+    stderr = sd(response) |> round(2),
+    min = min(response) |> round(2),
+    max = max(response) |> round(2)
   ) |> ggplot(aes(brand, category, fill= avg)) + 
   geom_tile(colour="white") +
-  scale_fill_viridis_b(direction=-1)
-
-
-df_proc |>
-  filter(question == 2) |> 
-  group_by(brand, category) |> 
-  summarise(
-    avg = mean(response),
-    stderr = sd(response),
-    min = min(response),
-    max = max(response)
+  geom_text(aes(label=avg), color="white") +
+  scale_fill_viridis_b(direction=-1) +
+  coord_flip() +
+  labs(
+    x="Store",
+    y="Characteristic",
+    fill="Avg Score"
   )
 ```
+Costco rates the highest of the 4 stores across each characteristic. Costco was
+noted ranked the highest in question 1, so it is interesting that it is rated
+highest in both price and variety and equivalent to Whole Foods and Trader Joe's
+on quality. This could be a situation where respondents are not consistently
+applying transitivity of rankings. A future survey design would need to take
+this into account.
 
 ## Challenges
 
