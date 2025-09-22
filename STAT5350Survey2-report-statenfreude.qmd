@@ -160,3 +160,27 @@ this into account.
 
 ## Challenges
 
+**Question 1**
+
+- Missingness
+  * People misunderstood the question and circled instead of ranking
+  * These responses were coded as NAs
+- Scale use ambiguity
+  * Failed to define 1 as highest or lowest preference
+  * We assume 1 = highest preference for analysis
+  * No way of knowing if/which respondents interpreted different to us
+
+**Questions 1 & 2**
+
+- Inapplicability
+  * Some respondents had never been to some of the stores
+  * One instance of NA response (when respondent asked and was told to write NA)
+  * Overall ambiguity of ‘No opinion’ response option ->Does this mean neutrality or inapplicability?
+
+**Overall**
+
+- Undefined population
+  * No target population
+  * No demographic information collected
+  * Limits our conclusions
+  * Unable to explore further questions
