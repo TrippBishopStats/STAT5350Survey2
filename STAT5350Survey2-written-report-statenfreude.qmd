@@ -1,0 +1,20 @@
+---
+title: "Sruvey 2"
+author: "Statenfreude"
+format: html
+---
+
+# Introduction
+
+
+# Methods
+
+
+# Results
+
+
+# Discussion
+
+
+
+# Conclusions
