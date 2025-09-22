@@ -21,6 +21,7 @@ base_theme <- theme_minimal() +
   )
 theme_set(base_theme)
 df_proc <- read_rds("df_proc.rds")
+df_wide <- read_rds("wide-data.rds")
 ```
 
 ## Questions
@@ -89,6 +90,48 @@ df_proc |>
              horizontally to prevent overplotting."
   )
 ```
+
+
+
+```{r question 1 preference means}
+df_pref_tgt <- df_wide |> filter(target_1 > costco_1)
+
+df_proc |> filter(question==2 & brand=="Whole Foods") |> 
+  select(respondent, response) |> 
+  group_by(respondent) |> 
+  summarise(
+    agg_response = mean(response)
+  ) |> inner_join(df_pref_tgt, by="respondent") |> 
+  select(respondent, agg_response) |> 
+  summarise(
+    wf_pref_avg = mean(agg_response)
+  )
+
+df_proc |> filter(question==2 & brand=="Whole Foods") |> 
+  select(respondent, response) |> 
+  group_by(respondent) |> 
+  summarise(
+    agg_response = mean(response)
+  ) |> anti_join(df_pref_tgt, by="respondent") |> 
+  select(respondent, agg_response) |> 
+  summarise(
+    wf_pref_avg = mean(agg_response)
+  )
+
+wf_Txs <- NULL
+wf_Cxs <- NULL
+if(costco1[i] < target1[i]) {
+	wf_Txs <- c(wf_Txs, wf2[i])
+}
+else{
+	wf_Cxs <- c(wf_Cxs, wf2[i])
+}
+mean(wf_xs)
+
+```
+
+
+
 
 ## Question 2
 
