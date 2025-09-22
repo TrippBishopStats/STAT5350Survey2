@@ -2,10 +2,15 @@
 title: "Survey 2"
 author: "Statenfreude"
 format: html
+echo: false
+execute: 
+  warning: false
+  messages: false
 ---
 
 ```{r intial setup}
-library(tidyverse);
+rm(list=ls())
+library(tidyverse); library(kableExtra)
 base_theme <- theme_minimal() +
   theme(
     axis.text=element_text(size=12),
@@ -18,39 +23,72 @@ theme_set(base_theme)
 df_proc <- read_rds("df_proc.rds")
 ```
 
+## Questions
+We decided to select questions 1 & 2 from our survey.
 
+**Question 1:** Please rank the following stores in order of your preference 
+(1-4) for a new store in Laramie.
 
-## Question 1
+**Question 2:** Please rank the following characteristics of each store: price,
+quality, and variety.
 
-```{r}
+## A priori hypotheses
+The survey questions generated a number of hypotheses. We explored the 3 listed here.
+
+- For question 1, we expected Target and Costco to be rated the highest out of the four options.
+- For question 2, we expected that the mean (combined price, quality, and variety scores) of overall approval of Whole Foods will be higher for individuals who rated Target higher than Costco in question 1.
+- There was an alternate hypothesis that Trader Joe's and Whole Foods might be more popular with students given that students are probably most interested in food options rather than general shopping.
+- Target has been experiencing push back on DEI business decisions and that may affect its ranking.
+
+We did not capture demographic data, but nearly all of our sampling was
+conducted in the student union, so most of the survey respondents are very
+likely to be students at the university.
+
+## Results question 1
+The mean rankings and other descriptive statistics are listed in the table
+below. The highest ranked store was Target, followed by Costco. This
+is counter to the second hypothesis about store rankings but may support the
+first. Target did rank the highest in the survey, which runs counter to the
+hypothesis that Target is perceived in a negative light. However, the survey was
+not designed to explore this question, so no firm conclusions can be drawn from 
+this result.
+
+```{r question 1 results}
 # question one 
 df_proc |>
   filter(question == 1) |> 
   group_by(brand) |> 
   summarise(
     avg = mean(response, na.rm=TRUE),
-    stderr = sd(response),
-    min = min(response),
-    max = max(response)
+    stderr = sd(response, na.rm=TRUE),
+    min = min(response, na.rm=TRUE),
+    max = max(response, na.rm=TRUE),
+    md = median(response, na.rm=TRUE)
+  ) |> kable(
+    caption="Descriptive statistics for store rankings.",
+    digits = c(0,1,2,0,0,1),
+    col.names=c("Store", "Avg", "Std dev", "Min", "Max", "Median")
   )
+```
 
+```{r question 1 box plot}
 df_proc |>
   filter(question == 1 & !is.na(response)) |> 
   ggplot(aes(x=brand, y=response, colour=brand)) +
   geom_boxplot() +
   geom_jitter(alpha=0.5, height=0.1, width=0.4) +
   scale_colour_brewer(palette="Dark2") +
+  scale_y_reverse() +
   labs(
     y="Response",
-    x="Brand",
-    colour="Brand",
-    title="Comparison of brand rankings",
+    x="Store",
+    colour="Store",
+    title="Comparison of store rankings",
+    subtitle="Lower scores indicate a higher preference",
     caption="Data points have been jittered both vertically and 
              horizontally to prevent overplotting."
   )
-
 ```
-
 
 ## Question 2
 
@@ -80,44 +118,5 @@ df_proc |>
   )
 ```
 
-## Question 3
-
-
-```{r question 3 data proc and viz}
-df_proc |>
-  filter(question == 3) |> 
-  group_by(brand) |> 
-  summarise(
-    avg = mean(response),
-    stderr = sd(response),
-    min = min(response),
-    max = max(response)
-  ) 
-  
-  
-df_proc |>
-  filter(question == 3) |>
-  ggplot(aes(x=brand, y=response,colour=brand)) +
-  geom_boxplot() +
-  geom_jitter(alpha=0.4, width=0.4) +
-  scale_colour_brewer(palette="Dark2") +
-  labs(
-    y="Allocation ($)",
-    x="Brand",
-    colour="Brand"
-  )
-
-df_proc |> filter(question == 3) |> ggplot(aes(x=response)) +
-  geom_histogram(colour="white", fill="steelblue") + facet_wrap(~brand) +
-  labs(
-    y="Frequency",
-    x="Brand allocation ($)",
-    title="Comparison of brand monetary allocation distributions"
-  ) +
-  theme(
-    strip.background=element_rect(colour="grey30", fill="grey80"),
-    strip.text=element_text(face="bold")
-  )
-
-```
+## Challenges
 
