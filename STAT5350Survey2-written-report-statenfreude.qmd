@@ -382,7 +382,8 @@ df_proc |>
 
 Heat map for question 2.
 ```{r appendix question 2 heat map}
-#| fig-cap: "Heatmap of store characterics. Darker colours indicate higher rankings. The sample size for this question is $n=40$."
+#| eval: false
+#| echo: true
 df_proc |>
   filter(question == 2 & !is.na(response)) |> 
   group_by(brand, category) |> 
@@ -404,9 +405,10 @@ df_proc |>
 ```
 
 Box plot of question 1 data.
+
 ```{r appendix question 1 box plot}
-#| fig-align: "center"
-#| fig-cap: "Comparison of store brand rankings. Trader Joe's exhibits a very wide distribution of rankings among respondents while Whole Foods have a very narrow range. Target and Costco show very similar patterns of rankings among respondents."
+#| eval: false
+#| echo: true
 df_proc |>
   filter(question == 1 & !is.na(response)) |> 
   ggplot(aes(x=brand, y=response, colour=brand)) +
@@ -423,7 +425,27 @@ df_proc |>
     caption="Data points have been jittered both vertically and 
              horizontally to prevent overplotting."
   )
+```
 
+The boxplot for question 3 fixed sum data was created with the following code.
+```{r appendix question 3 boxplot}
+#| eval: false
+#| echo: true
+df_proc |>
+  filter(question == 3 & !is.na(response)) |> 
+  ggplot(aes(x=brand, y=response, colour=brand)) +
+  geom_boxplot() +
+  geom_jitter(alpha=0.5, height=0.1, width=0.4) +
+  scale_colour_brewer(palette="Dark2") +
+  labs(
+    y="Response",
+    x="Store",
+    colour="Store",
+    title="Comparison of amount spent at each store",
+    caption="Data points have been jittered both vertically and 
+             horizontally to prevent overplotting."
+  )
+```
 
 The code to examine hypothesis 4 included below.
 
@@ -455,5 +477,47 @@ wf_mean_not_tgt <- df_proc |> filter(question==2 & brand=="Whole Foods" &
   summarise(
     wf_pref_avg = mean(agg_response)
   ) |> pull() |> round(2)
+```
+
+The data cleaning and processing pipeline code for the survey data is provided
+below.
+
+```{r appendix data processing}
+#| eval: false
+#| echo: true
+library(tidyverse); library(janitor)
+df <- read_csv("complete-data.csv") |> janitor::clean_names()
+
+# perform transformation and field engineering.
+df_processed <- df |> 
+  pivot_longer(cols=c(everything(), -respondent), 
+               names_to="category", values_to="response") |> 
+  mutate(
+    question = case_when(
+                str_detect(category,"_1") ~ "1",
+                str_detect(category,"_2") ~ "2",
+                str_detect(category,"_3") ~ "3"),
+    category = str_replace(category, "_\\d", ""),
+    brand = case_when(
+                str_detect(category, "target") ~ "Target",
+                str_detect(category, "whole_foods") ~ "Whole Foods",
+                str_detect(category, "costco") ~ "Costco",
+                str_detect(category, "trader_joes") ~ "Trader Joe's",
+    ),
+    category = case_when(
+                str_detect(category,"price") ~ "Price",
+                str_detect(category,"quality") ~ "Quality",
+                str_detect(category,"variety") ~ "Variety",
+                .default=NA
+    )
+  ) |> 
+  select(respondent,question,brand,category,response) |> 
+  mutate(
+    question = as_factor(question),
+    brand = as_factor(brand)
+  )
+
+write_rds(df, "wide-data.rds")
+write_rds(df_processed, "df_proc.rds")
 ```
 
