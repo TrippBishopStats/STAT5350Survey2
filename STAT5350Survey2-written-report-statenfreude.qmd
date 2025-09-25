@@ -269,6 +269,7 @@ The respective amounts spent at each store are displayed in the box plot below.
 
 ```{r}
 #| fig-align: "center"
+#| fig-cap: "Comparison of amount spent on each store. Whole Foods has the most distinct distribution, with half of the respondents allocating $0 to the store. In contrast, Target and Costco  show similar high allocations from respondents for the hypothetical $100. The wide range of responses for all stores indicates respondents often allocated the full amount to only one or two stores."
 df_proc |>
   filter(question == 3 & !is.na(response)) |> 
   ggplot(aes(x=brand, y=response, colour=brand)) +
