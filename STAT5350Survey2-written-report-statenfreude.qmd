@@ -74,11 +74,12 @@ respondents might become confused, misinterpret instructions, or feel limited
 by the response options.
 
 We looked primarily at whether participants could easily complete the ranking in
-Q1 without confusion, whether the rating scale in Q2 (price, quality, variety)
-captured meaningful differences across stores, and whether the fixed-sum
-allocation in Q3 (splitting $100) felt natural or confusing for respondents.
+question 1 without confusion, whether the rating scale in question 2 (price,
+quality, variety) captured meaningful differences across stores, and whether the
+fixed-sum allocation in question 3 (splitting $100) felt natural or confusing
+for respondents.
 
-Overall, participants seemed comfortable with the survey questions. For Question
+Overall, participants seemed comfortable with the survey questions. For question
 1 (Forced Ranking), we assumed that “1” would represent the highest rating,
 rather than the lowest. We did not clarify this during the session, which
 highlights how easily both researchers and respondents can overlook important
@@ -268,7 +269,6 @@ The respective amounts spent at each store are displayed in the box plot below.
 
 ```{r}
 #| fig-align: "center"
-#| fig-cap: "Commentary need for this figure."
 df_proc |>
   filter(question == 3 & !is.na(response)) |> 
   ggplot(aes(x=brand, y=response, colour=brand)) +
@@ -380,9 +380,49 @@ df_proc |>
 ```
 
 
+Heat map for question 2.
+```{r appendix question 2 heat map}
+#| fig-cap: "Heatmap of store characterics. Darker colours indicate higher rankings. The sample size for this question is $n=40$."
+df_proc |>
+  filter(question == 2 & !is.na(response)) |> 
+  group_by(brand, category) |> 
+  summarise(
+    avg = mean(response) |> round(2),
+    stderr = sd(response) |> round(2),
+    min = min(response) |> round(2),
+    max = max(response) |> round(2)
+  ) |> ggplot(aes(brand, category, fill= avg)) + 
+  geom_tile(colour="white") +
+  geom_text(aes(label=avg), color="white") +
+  scale_fill_viridis_b(direction=-1) +
+  coord_flip() +
+  labs(
+    x="Store",
+    y="Characteristic",
+    fill="Avg Score"
+  )
+```
 
-
-
+Box plot of question 1 data.
+```{r appendix question 1 box plot}
+#| fig-align: "center"
+#| fig-cap: "Comparison of store brand rankings. Trader Joe's exhibits a very wide distribution of rankings among respondents while Whole Foods have a very narrow range. Target and Costco show very similar patterns of rankings among respondents."
+df_proc |>
+  filter(question == 1 & !is.na(response)) |> 
+  ggplot(aes(x=brand, y=response, colour=brand)) +
+  geom_boxplot() +
+  geom_jitter(alpha=0.5, height=0.1, width=0.4) +
+  scale_colour_brewer(palette="Dark2") +
+  scale_y_reverse() +
+  labs(
+    y="Response",
+    x="Store",
+    colour="Store",
+    title="Comparison of store rankings",
+    subtitle="Lower scores indicate a higher preference",
+    caption="Data points have been jittered both vertically and 
+             horizontally to prevent overplotting."
+  )
 
 
 The code to examine hypothesis 4 included below.
