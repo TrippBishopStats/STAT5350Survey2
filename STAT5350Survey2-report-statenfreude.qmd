@@ -135,7 +135,7 @@ characteristics: price, quality, and variety. Each characteristic is measured on
 a multiple rating scale from 1 (poor) to 5 (excellent). The average
 characteristic score for each store is presented in the heat map below.
 ```{r question 2 visualisations}
-#| fig-cap: "Heatmap of store characterics. Darker colours indicate higher rankings."
+#| fig-cap: "Heatmap of store characterics. Darker colours indicate higher rankings. Sample size for this question was $n=40$"
 df_proc |>
   filter(question == 2 & !is.na(response)) |> 
   group_by(brand, category) |> 
